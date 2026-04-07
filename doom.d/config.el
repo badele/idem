@@ -104,5 +104,3 @@
 (map! :n "C-s" #'save-buffer
       :i "C-s" #'save-buffer
       :v "C-s" #'save-buffer)
-
-(global-set-key (kbd "<f5>") #'deadgrep)
