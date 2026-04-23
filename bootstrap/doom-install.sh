@@ -12,7 +12,6 @@ EMACSDIR="${EMACSDIR:-$HOME/.config/emacs}"
 DOOMDIR="${DOOMDIR:-$HOME/.config/doom}"
 
 PIN_FILE="$REPO_ROOT/doom-version.txt"
-LOCK_FILE="$REPO_ROOT/default.el"
 
 ################################################################################
 # Bootstrap code
@@ -32,13 +31,14 @@ if [ -f "$PIN_FILE" ]; then
 fi
 
 mkdir -p "$(dirname "$DOOMDIR")"
-rm -rf "$DOOMDIR"
-cp -a "$REPO_ROOT/doom.d" "$DOOMDIR"
-
-if [ -f "$LOCK_FILE" ]; then
-    mkdir -p "$EMACSDIR/.local/straight/versions"
-    cp "$LOCK_FILE" "$EMACSDIR/.local/straight/versions/default.el"
+if [ -d "$DOOMDIR" ] && [ ! -L "$DOOMDIR" ]; then
+    DATE="$(date +%Y%m%d-%H%M%S)"
+    mv "$DOOMDIR" "${DOOMDIR}-${DATE}.bak"
 fi
+if [ -L "$DOOMDIR" ]; then
+    rm "$DOOMDIR"
+fi
+ln -s "$REPO_ROOT/doom.d" "$DOOMDIR"
 
 export DOOMDIR
 "$EMACSDIR/bin/doom" install --force

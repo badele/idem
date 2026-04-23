@@ -52,5 +52,15 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
+
+;; for getting pin hash
+;; use describe-package
 (package! deadgrep :pin "ad7ddfb")
 (package! wgrep :pin "b4d6928")
+(package! clipetty :pin "01b3904")
+(package! colorful-mode :pin "257cbb1")
+(package! copilot :pin "ab5c58b")
+(package! lsp-treemacs :pin "49df729")
+
+;; The latest version is bugged
+(package! emacs-dashboard :pin "9cfcb08")

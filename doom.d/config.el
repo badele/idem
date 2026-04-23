@@ -1,50 +1,143 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Define font and mouse cursor (must load first)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq doom-font
+      (cond
+       ((find-font (font-spec :family "Fira Mono"))
+        (font-spec :family "Fira Mono" :size 14))
+       ((find-font (font-spec :family "JetBrains Mono"))
+        (font-spec :family "JetBrains Mono" :size 14))
+       (t
+        (font-spec :family "monospace" :size 14))))
+
+(when (display-graphic-p)
+  (set-mouse-color "white"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Define editor UI
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq doom-theme 'doom-tokyo-night)
+
+(setq-default tab-width 2)
+(setq-default standard-indent 2)
+
+;; Show color for the hexadecimal or color name
+(use-package! colorful-mode
+  :hook ((prog-mode text-mode conf-mode) . colorful-mode))
+
+;; display line number
+(setq display-line-numbers-type t)
+
+;; display vertical indentation bar
+(use-package! indent-bars
+  :hook (prog-mode . indent-bars-mode)
+  :config
+  (setq indent-bars-prefer-character t)
+  (setq indent-bars-no-stipple-char ?│)
+
+  ;; for terminal
+  (setq indent-bars-unspecified-bg-color "#000000")
+  (setq indent-bars-unspecified-fg-color "#c0c0c0")
+
+  ;; barres normales
+  (setq indent-bars-color '(highlight :face-bg t :blend 0.25))
+
+  ;; highlight depth
+  (setq indent-bars-highlight-current-depth
+        '(:face default  :blend 1.0))
+
+  (setq indent-bars-highlight-selection-method 'context))
+
+(use-package copilot
+  :ensure t
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . copilot-accept-completion)
+              ("TAB" . copilot-accept-completion)
+              ("C-<tab>" . copilot-accept-completion-by-word)
+              ("C-TAB" . copilot-accept-completion-by-word)
+              ("C-n" . copilot-next-completion)
+              ("C-p" . copilot-previous-completion)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; dahsboard
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! recentf
+  (add-to-list 'recentf-exclude "/\\.local/"))
+
+(defun my/center-ansi-line (line width)
+  "Centre une ligne ANSI dans WIDTH colonnes."
+  (let* ((clean (replace-regexp-in-string "\x1b\\[[0-9;]*m" "" line))
+         (len (string-width clean))
+         (padding (/ (max 0 (- width len)) 2)))
+    (concat (make-string padding ?\s) line)))
+
+(defun my/insert-centered-ansi-banner (file)
+  (require 'ansi-color)
+  (let ((width (window-width))
+        (start (point)))
+    (dolist (line (split-string
+                   (with-temp-buffer
+                     (insert-file-contents file)
+                     (buffer-string))
+                   "\n"))
+      (insert (my/center-ansi-line line width) "\n"))
+    (ansi-color-apply-on-region start (point))))
+
+(use-package! dashboard
+  :config
+  (setq dashboard-startup-banner 'ascii
+        dashboard-banner-ascii " "
+        dashboard-items
+        '((recents  . 5)
+          (projects . 5)
+          (agenda   . 5)))
 
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets. It is optional.
-;; (setq user-full-name "John Doe"
-;;       user-mail-address "john@doe.com")
+  (advice-add 'dashboard-insert-banner :override
+              (lambda ()
+                (my/insert-centered-ansi-banner
+                 "~/.config/doom/logo.ans")))
 
-;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;; - `doom-symbol-font' -- for symbols
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
-;;
-;; See 'C-h v doom-font' for documentation and more examples of what they
-;; accept. For example:
-;;
-;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
-;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-;;
-;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
-;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
-;; refresh your font settings. If Emacs still can't find your font, it likely
-;; wasn't installed correctly. Font issues are rarely Doom issues!
+  (dashboard-setup-startup-hook))
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-( setq doom-theme 'doom-one
-       )
-(after! doom-themes
-  (set-face-attribute 'menu nil
-                      :background (doom-color 'bg-alt)
-                      :foreground (doom-color 'fg)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; On Terminal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(after! doom-themes
-  (set-face-attribute 'mode-line nil
-                      :background (doom-color 'bg))
-  (set-face-attribute 'menu nil
-                      :background (doom-color 'bg-alt)
-                      :foreground (doom-color 'fg)))
+;; clipboard
+(setq select-enable-clipboard t)
+(setq select-enable-primary t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; File & Folders
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq org-directory "~/org/")
+
+(setq locate-command "plocate %s %s")
+
+;; enable undo on multiple sessions
+;; (use-package! undo-fu-session
+;;   :hook ((prog-mode text-mode conf-mode) . undo-fu-session-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; rebinding
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Save file with CTRL+S
+(defun my/save-buffer-and-exit-insert ()
+  "Save current buffer, then leave insert mode."
+  (interactive)
+  (save-buffer)
+  (when (and (bound-and-true-p evil-local-mode)
+             (evil-insert-state-p))
+    (evil-normal-state)))
+
+(map! :n "C-s" #'save-buffer
+      :i "C-s" #'my/save-buffer-and-exit-insert
+      :v "C-s" #'save-buffer)
 
 ;; confirm kill emacs (only if file not saved)
 (defun my-confirm-kill-emacs (_prompt)
@@ -56,51 +149,83 @@
 
 (setq confirm-kill-emacs #'my-confirm-kill-emacs)
 
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
+;; Toggle inlay hint (show function parameter names)
+(after! eglot
+  (map! :map eglot-mode-map
+        :leader
+        :desc "Toggle Eglot inlay hints"
+        "t h" #'eglot-inlay-hints-mode))
 
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(map! :leader
+      :desc "Find file with fd"
+      "p f" #'consult-fd)
 
+(map! :leader
+      :desc "Find file with fd"
+      "SPC" #'consult-fd)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Mode configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; `with-eval-after-load' block, otherwise Doom's defaults may override your
-;; settings. E.g.
-;;
-;;   (with-eval-after-load 'PACKAGE
-;;     (setq x y))
-;;
-;; The exceptions to this rule:
-;;
-;;   - Setting file/directory variables (like `org-directory')
-;;   - Setting variables which explicitly tell you to set them before their
-;;     package is loaded (see 'C-h v VARIABLE' to look them up).
-;;   - Setting doom variables (which start with 'doom-' or '+').
-;;
-;; Here are some additional functions/macros that will help you configure Doom.
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; etc).
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
+;; neotex mode =================================================================
+(define-derived-mode neo-mode text-mode "Neotex"
+  "Major mode for .neo files.")
+(add-to-list 'auto-mode-alist '("\\.neo\\'" . neo-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; rebinding
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defconst my/neo--whitespace-fns
+  '(delete-trailing-whitespace
+    whitespace-cleanup
+    whitespace-cleanup-region
+    ws-butler-before-save))
 
-;; Save file with CTRL+S
-(map! :n "C-s" #'save-buffer
-      :i "C-s" #'save-buffer
-      :v "C-s" #'save-buffer)
+(defun my/neo--skip-whitespace-cleanup (orig &rest args)
+  (unless (derived-mode-p 'neo-mode)
+    (apply orig args)))
+
+(dolist (fn '(delete-trailing-whitespace
+              whitespace-cleanup
+              whitespace-cleanup-region))
+  (advice-add fn :around #'my/neo--skip-whitespace-cleanup))
+
+(after! ws-butler
+  (advice-add 'ws-butler-before-save :around #'my/neo--skip-whitespace-cleanup)
+  (add-to-list 'ws-butler-global-exempt-modes 'neo-mode))
+
+(defun my/neo--setup ()
+  (setq-local +format-inhibit t)
+  (setq-local show-trailing-whitespace t)
+  (when (bound-and-true-p whitespace-mode)
+    (whitespace-mode -1))
+  (when (bound-and-true-p ws-butler-mode)
+    (ws-butler-mode -1))
+  (remove-hook 'write-file-functions #'whitespace-write-file-hook t)
+  (let ((hook (copy-sequence before-save-hook)))
+    (dolist (fn my/neo--whitespace-fns)
+      (setq hook (delq fn hook)))
+    (setq-local before-save-hook hook)))
+
+(add-hook 'neo-mode-hook #'my/neo--setup)
+
+;; Markdown ====================================================================
+(after! grip-mode
+  (setq grip-command 'go-grip))
+
+(after! apheleia
+  (setf (alist-get 'prettier apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
+  (setf (alist-get 'gfm-mode apheleia-mode-alist) 'prettier))
+
+(after! markdown-mode
+  (setq markdown-command '("pandoc" "--from=gfm" "--to=html5"))
+  (map! :map markdown-mode-map
+        :localleader
+        (:prefix ("i" . "insert")
+         :desc "Refresh TOC"
+         "R" #'markdown-toc-refresh-toc))
+  )
+;; Python ======================================================================
+(setq-hook! 'python-ts-mode-hook fill-column 88)
+(after! apheleia
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist)
+        '(isort black)))
