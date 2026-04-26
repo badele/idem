@@ -20,6 +20,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq doom-theme 'doom-tokyo-night)
 
+;; define french locale
+;; (set-locale-environment "fr_FR.UTF-8")
+(setq system-time-locale "fr_FR.UTF-8")
+
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+
+;; save cursor position in file
+(save-place-mode +1)
+
 (setq-default tab-width 2)
 (setq-default standard-indent 2)
 
@@ -114,8 +124,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; File & Folders
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq org-directory "~/org/")
-
 (setq locate-command "plocate %s %s")
 
 ;; enable undo on multiple sessions
@@ -166,6 +174,318 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mode configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; org mode ====================================================================
+;; Compute age from BIRTHDAY property and display it in agenda if today is the birthday
+(defun my/org-anniversary-from-prop ()
+  (let* ((bday (org-entry-get nil "BIRTHDAY"))
+         (parts (and bday (parse-time-string bday)))
+         (y (nth 5 parts))
+         (m (nth 4 parts))
+         (d (nth 3 parts))
+         (today date) ;; variable fournie par diary: (month day year)
+         (tm (calendar-extract-month today))
+         (td (calendar-extract-day today))
+         (ty (calendar-extract-year today))
+         (name (org-get-heading t t t t)))
+    (when (and y m d (= tm m) (= td d))
+      (format "%s a %d ans" name (- ty y)))))
+
+(after! org
+  (setq org-directory "~/ghq/github.com/badele/org/")
+  (setq org-default-notes-file "~/ghq/github.com/badele/org/notes.org")
+  (setq +org-capture-inbox-file "~/ghq/github.com/badele/org/inbox.org")
+  (setq +org-capture-job-file "~/ghq/github.com/badele/org/jobs.org")
+  (setq +org-capture-journal-file "~/ghq/github.com/badele/org/journal.org")
+
+  (setq org-agenda-files
+        (mapcar (lambda (file)
+                  (expand-file-name file org-directory))
+                '(
+                  "contacts.org"
+                  "inbox.org"
+                  "jobs.org"
+                  "perso.org"
+                  "projects.org"
+                  )))
+
+  (setq org-refile-targets
+        '(
+          ("jobs.org" :maxlevel . 2)
+          ("perso.org" :maxlevel . 2)
+          ("projects.org" :maxlevel . 4)
+          )
+        )
+  ;; (setq org-agenda-sorting-strategy
+  ;;       '((agenda habit-down time-up priority-down category-keep)
+  ;;         (todo todo-state-up priority-down)
+  ;;         (tags todo-state-up priority-down)
+  ;;         (search category-keep)))
+
+  ;; Align category and time in agenda view
+  (setq org-agenda-prefix-format
+        '((agenda . " %25:c %12t ")
+          (todo   . " %25:c ")
+          (tags   . " %25:c ")
+          (search . " %25:c ")))
+
+  ;; Global TODO keywords
+  (setq org-todo-keywords
+        '((sequence
+           "IN-PROGRESS(i)"
+           "WAIT(w)"
+           "INTERVIEW(I)"
+           "EXCHANGE(x)"
+           "SEND(s)"
+           "TODO(t)"
+           "WATCH(W)"
+           "SOMEDAY(S)"
+           "|"
+           "DONE(d)"
+           "REFUSED(r)"
+           "CANCELLED(c)"
+           "KILL(k)")))
+
+  (setq org-todo-keyword-faces
+        '(("TODO"         . (:foreground "#ff9e64" :weight bold))
+          ("IN-PROGRESS"  . (:foreground "#9ece6a" :weight bold))
+          ("WAIT"         . (:foreground "#e0af68" :weight bold))
+          ("WATCH"        . (:foreground "#7dcfff" :weight bold))
+          ("SEND"         . (:foreground "#9ece6a" :weight bold))
+          ("EXCHANGE"     . (:foreground "#bb9af7" :weight bold))
+          ("INTERVIEW"    . (:foreground "#f7768e" :weight bold))
+          ("REFUSED"      . (:foreground "#565f89" :weight bold))
+          ("CANCELLED"    . (:foreground "#414868" :weight bold))))
+
+  (setq org-agenda-sorting-strategy
+        '((agenda habit-down time-up priority-down category-keep)
+          (todo todo-state-up priority-down category-keep)
+          (tags todo-state-up priority-down category-keep)
+          (search category-keep)))
+
+
+  (defun air-org-skip-subtree-if-priority (priority)
+    "Skip an agenda subtree if it has a priority of PRIORITY.
+
+PRIORITY may be one of the characters ?A, ?B, or ?C."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (pri-value (* 1000 (- org-lowest-priority priority)))
+          (pri-current (org-get-priority (thing-at-point 'line t))))
+      (if (= pri-value pri-current)
+          subtree-end
+        nil)))
+
+
+  (defun air-org-skip-subtree-if-habit ()
+    "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (string= (org-entry-get nil "STYLE") "habit")
+          subtree-end
+        nil)))
+
+  (setq org-agenda-custom-commands
+        '(("d" "What am I doing today?"
+           ((tags "PRIORITY=\"A\""
+                  ((org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'todo 'done))
+                   (org-agenda-overriding-header "High-priority tasks:")))
+
+            (agenda "" ((org-agenda-ndays 1)))
+
+            (alltodo ""
+                     ((org-agenda-skip-function
+                       '(or (air-org-skip-subtree-if-habit)
+                            (air-org-skip-subtree-if-priority ?A)
+                            (org-agenda-skip-if nil '(scheduled deadline))))
+                      (org-agenda-overriding-header "Other tasks:")))))
+
+          ("j" "Job status"
+           ((todo "TODO")
+            (todo "WATCH")
+            (todo "SEND")
+            (todo "EXCHANGE")
+            (todo "INTERVIEW")
+            (todo "REFUSED")
+            (todo "CANCELLED"))
+           ((org-agenda-files '("jobs.org"))
+            (org-agenda-overriding-header "Job status")))
+
+          ("i" "Inbox"
+           tags "LEVEL=1"
+           ((org-agenda-files (list +org-capture-inbox-file))))))
+  ;; (setq org-agenda-custom-commands
+  ;;       '(("d" "What am I doing today?"
+  ;;          ((tags "PRIORITY=\"A\""
+  ;;                 ((org-agenda-skip-function
+  ;;                   '(org-agenda-skip-entry-if 'todo 'done))
+  ;;                  (org-agenda-overriding-header "High-priority tasks:")
+  ;;                  (org-agenda-sorting-strategy '(todo-state-down priority-down))
+  ;;                  ))
+
+  ;;           (agenda "" ((org-agenda-ndays 1)))
+
+  ;;           (alltodo ""
+  ;;                    ((org-agenda-skip-function
+  ;;                      '(or (air-org-skip-subtree-if-habit)
+  ;;                           (air-org-skip-subtree-if-priority ?A)
+  ;;                           (org-agenda-skip-if nil '(scheduled deadline))))
+  ;;                     (org-agenda-overriding-header "Other tasks:")
+  ;;                     (org-agenda-sorting-strategy '(todo-state-down priority-down))
+  ;;                     ))
+  ;;           ))
+
+  ;;         ("j" "Job status"
+  ;;          ((todo "TODO")
+  ;;           (todo "WATCH")
+  ;;           (todo "SEND")
+  ;;           (todo "EXCHANGE")
+  ;;           (todo "INTERVIEW")
+  ;;           (todo "REFUSED")
+  ;;           (todo "CANCELLED"))
+  ;;          ((org-agenda-files '("jobs.org"))
+  ;;           (org-agenda-overriding-header "Job status")))
+
+  ;;         ("i" "Inbox"
+  ;;          tags "LEVEL=1"
+  ;;          ((org-agenda-files (list +org-capture-inbox-file))))))
+
+  (setq org-refile-targets
+        '(("projects.org" :maxlevel . 2)
+          ("perso.org" :maxlevel . 2)
+          ("inbox.org" :maxlevel . 2)))
+
+  (setq org-agenda-show-outline-path t)
+
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
+
+  (setq org-capture-templates
+        '(
+          ("i" "Inbox" entry (file +org-capture-inbox-file)
+           "* TODO %? %^{
+Tag|:perso:|:work:|:family:}\n%U\n")
+
+          ;; ("n" "Personal notes" entry (file+headline +org-capture-notes-file "Inbox")
+          ;;  "* %u %?\n%i\n%a" :prepend t)
+          ("t" "Today Journal" entry (file+olp+datetree +org-capture-journal-file)
+           "* %U %?\n%i\n%a" :prepend t)
+          ;; ("p" "Templates for projects")
+          ;; ("pt" "Project-local todo" entry
+          ;;  (file+headline +org-capture-project-todo-file "Inbox") "* TODO %?\n%i\n%a"
+          ;;  :prepend t)
+          ;; ("pn" "Project-local notes" entry
+          ;;  (file+headline +org-capture-project-notes-file "Inbox") "* %U %?\n%i\n%a"
+          ;;  :prepend t)
+          ;; ("pc" "Project-local changelog" entry
+          ;;  (file+headline +org-capture-project-changelog-file "Unreleased")
+          ;;  "* %U %?\n%i\n%a" :prepend t)
+
+          ;; ("o" "Centralized templates for projects")
+          ;; ("ot" "Project todo" entry #'+org-capture-central-project-todo-file
+          ;;  "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
+          ;; ("on" "Project notes" entry #'+org-capture-central-project-notes-file
+          ;;  "* %U %?\n %i\n %a" :heading "Notes" :prepend t)
+          ;; ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file
+          ;;  "* %U %?\n %i\n %a" :heading "Changelog" :prepend t)
+
+          ("j" "Job application" entry
+           (file+headline +org-capture-job-file "Candidatures")
+           "* TODO %^{Société}
+:PROPERTIES:
+:COMPANY: %\\1
+:ROLE: %^{Poste}
+:LOCATION: %^{Lieu|Remote|Paris|Hybrid|Unknown}
+:SOURCE: %^{Source|LinkedIn|Welcome to the Jungle|Indeed|Spontanée|Réseau|Autre}
+:URL: %^{URL}
+:CONTACT: %^{Contact}
+:EMAIL: %^{Email}
+:APPLIED_ON: %U
+:END:
+
+** Poste
+%?
+
+** Notes
+
+** Échanges
+
+** Prochaines actions
+"
+           :prepend t)
+
+          ;; ("J" "Job application" entry
+          ;;  (file +org-capture-job-file)
+          ;;  "* TODO %^{Société}\n:PROPERTIES:\n:COMPANY: %\\1\n:ROLE: %^{Poste}\n:LOCATION: %^{Lieu|Remote|Paris|Hybrid|Unknown}\n:SOURCE: %^{Source|LinkedIn|Welcome to the Jungle|Indeed|Spontanée|Réseau|Autre}\n:URL: %^{URL}\n:CONTACT: %^{Contact}\n:EMAIL: %^{Email}\n:APPLIED_ON: %U\n:END:\n\n** Poste\n%?\n\n** Notes\n\n** Échanges\n\n** Prochaines actions\n"
+          ;;  :prepend t)
+
+          )
+        )
+
+
+
+  ;; (setq org-capture-templates
+  ;;       (quote (("t" "todo" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+  ;;               ("r" "respond" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* IN-PROGRESS Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+  ;;               ("n" "note" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+  ;;               ("j" "Journal" entry (file+datetree "~/ghq/github.com/badele/org/diary.org")
+  ;;                "* %?\n%U\n" :clock-in t :clock-resume t)
+  ;;               ("w" "org-protocol" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* TODO Review %c\n%U\n" :immediate-finish t)
+  ;;               ("m" "Meeting" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+  ;;               ("p" "Phone call" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+  ;;               ("h" "Habit" entry (file "~/ghq/github.com/badele/org/inbox.org")
+  ;;                "* IN-PROGRESS %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
+
+  ;; Disable hl-line-mode in org-mode and org-agenda-mode (because hide logbook time)
+  (add-hook 'org-mode-hook (lambda () (hl-line-mode -1)))
+  (add-hook 'org-agenda-mode-hook (lambda () (hl-line-mode -1)))
+
+  ;; disable org-modern-mode in terminal
+  (unless (display-graphic-p)
+    (when (bound-and-true-p global-org-modern-mode)
+      (global-org-modern-mode -1))
+    (remove-hook 'org-mode-hook #'org-modern-mode)
+    (remove-hook 'org-agenda-finalize-hook #'org-modern-agenda))
+  )
+
+(after! org-agenda
+  (custom-set-faces!
+    '(org-agenda-structure
+      :foreground "#7dcfff" :weight bold :height 1.2)
+
+    '(org-agenda-date
+      :foreground "#7dcfff" :weight bold)
+
+    '(org-agenda-date-today
+      :foreground "#f7768e" :weight bold :slant italic)
+
+    '(org-agenda-date-weekend
+      :foreground "#bb9af7" :weight bold)
+
+    '(org-scheduled
+      :foreground "#9ece6a" :weight bold)
+
+    '(org-scheduled-today
+      :foreground "#9ece6a" :weight bold)
+
+    '(org-scheduled-previously
+      :foreground "#e0af68" :weight bold)
+
+    '(org-upcoming-deadline
+      :foreground "#e0af68" :weight bold)
+
+    '(org-warning
+      :foreground "#f7768e" :weight bold)
+
+    '(org-agenda-done
+      :foreground "#565f89"))
+  )
+
 
 ;; neotex mode =================================================================
 (define-derived-mode neo-mode text-mode "Neotex"
