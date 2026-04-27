@@ -216,11 +216,6 @@
           ("projects.org" :maxlevel . 4)
           )
         )
-  ;; (setq org-agenda-sorting-strategy
-  ;;       '((agenda habit-down time-up priority-down category-keep)
-  ;;         (todo todo-state-up priority-down)
-  ;;         (tags todo-state-up priority-down)
-  ;;         (search category-keep)))
 
   ;; Align category and time in agenda view
   (setq org-agenda-prefix-format
@@ -263,11 +258,10 @@
           (tags todo-state-up priority-down category-keep)
           (search category-keep)))
 
-
   (defun air-org-skip-subtree-if-priority (priority)
     "Skip an agenda subtree if it has a priority of PRIORITY.
 
-PRIORITY may be one of the characters ?A, ?B, or ?C."
+    PRIORITY may be one of the characters ?A, ?B, or ?C."
     (let ((subtree-end (save-excursion (org-end-of-subtree t)))
           (pri-value (* 1000 (- org-lowest-priority priority)))
           (pri-current (org-get-priority (thing-at-point 'line t))))
@@ -313,46 +307,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           ("i" "Inbox"
            tags "LEVEL=1"
            ((org-agenda-files (list +org-capture-inbox-file))))))
-  ;; (setq org-agenda-custom-commands
-  ;;       '(("d" "What am I doing today?"
-  ;;          ((tags "PRIORITY=\"A\""
-  ;;                 ((org-agenda-skip-function
-  ;;                   '(org-agenda-skip-entry-if 'todo 'done))
-  ;;                  (org-agenda-overriding-header "High-priority tasks:")
-  ;;                  (org-agenda-sorting-strategy '(todo-state-down priority-down))
-  ;;                  ))
-
-  ;;           (agenda "" ((org-agenda-ndays 1)))
-
-  ;;           (alltodo ""
-  ;;                    ((org-agenda-skip-function
-  ;;                      '(or (air-org-skip-subtree-if-habit)
-  ;;                           (air-org-skip-subtree-if-priority ?A)
-  ;;                           (org-agenda-skip-if nil '(scheduled deadline))))
-  ;;                     (org-agenda-overriding-header "Other tasks:")
-  ;;                     (org-agenda-sorting-strategy '(todo-state-down priority-down))
-  ;;                     ))
-  ;;           ))
-
-  ;;         ("j" "Job status"
-  ;;          ((todo "TODO")
-  ;;           (todo "WATCH")
-  ;;           (todo "SEND")
-  ;;           (todo "EXCHANGE")
-  ;;           (todo "INTERVIEW")
-  ;;           (todo "REFUSED")
-  ;;           (todo "CANCELLED"))
-  ;;          ((org-agenda-files '("jobs.org"))
-  ;;           (org-agenda-overriding-header "Job status")))
-
-  ;;         ("i" "Inbox"
-  ;;          tags "LEVEL=1"
-  ;;          ((org-agenda-files (list +org-capture-inbox-file))))))
-
-  (setq org-refile-targets
-        '(("projects.org" :maxlevel . 2)
-          ("perso.org" :maxlevel . 2)
-          ("inbox.org" :maxlevel . 2)))
 
   (setq org-agenda-show-outline-path t)
 
@@ -363,10 +317,8 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         '(
           ("i" "Inbox" entry (file +org-capture-inbox-file)
            "* TODO %? %^{
-Tag|:perso:|:work:|:family:}\n%U\n")
+    Tag|:perso:|:work:|:family:}\n%U\n")
 
-          ;; ("n" "Personal notes" entry (file+headline +org-capture-notes-file "Inbox")
-          ;;  "* %u %?\n%i\n%a" :prepend t)
           ("t" "Today Journal" entry (file+olp+datetree +org-capture-journal-file)
            "* %U %?\n%i\n%a" :prepend t)
           ;; ("p" "Templates for projects")
@@ -390,56 +342,31 @@ Tag|:perso:|:work:|:family:}\n%U\n")
 
           ("j" "Job application" entry
            (file+headline +org-capture-job-file "Candidatures")
-           "* TODO %^{Société}
+           "* TODO %^{Société} :job:
 :PROPERTIES:
 :COMPANY: %\\1
-:ROLE: %^{Poste}
-:LOCATION: %^{Lieu|Remote|Paris|Hybrid|Unknown}
-:SOURCE: %^{Source|LinkedIn|Welcome to the Jungle|Indeed|Spontanée|Réseau|Autre}
-:URL: %^{URL}
-:CONTACT: %^{Contact}
-:EMAIL: %^{Email}
-:APPLIED_ON: %U
+:COMPANY_TYPE:
+:DOMAIN:
+:LOCATION: %^{Lieu|Unknown|Remote|Paris|Hybrid}
+:DATE_AJOUT: %U
 :END:
-
-** Poste
-%?
-
-** Notes
-
-** Échanges
-
-** Prochaines actions
-"
+*** Annonces :
+*** Tâches :
+- [ ] Lire l’annonce
+- [ ] Vérifier la société
+- [ ] Vérifier réputation société (indeed, glassdoor)
+- [ ] Adapter CV
+- [ ] Postuler
+*** Questions à poser :
+*** Notes :
+    - STACK :
+    - POINTS positifs :
+    - Red flags :
+*** Echanges :
+          "
            :prepend t)
-
-          ;; ("J" "Job application" entry
-          ;;  (file +org-capture-job-file)
-          ;;  "* TODO %^{Société}\n:PROPERTIES:\n:COMPANY: %\\1\n:ROLE: %^{Poste}\n:LOCATION: %^{Lieu|Remote|Paris|Hybrid|Unknown}\n:SOURCE: %^{Source|LinkedIn|Welcome to the Jungle|Indeed|Spontanée|Réseau|Autre}\n:URL: %^{URL}\n:CONTACT: %^{Contact}\n:EMAIL: %^{Email}\n:APPLIED_ON: %U\n:END:\n\n** Poste\n%?\n\n** Notes\n\n** Échanges\n\n** Prochaines actions\n"
-          ;;  :prepend t)
-
           )
         )
-
-
-
-  ;; (setq org-capture-templates
-  ;;       (quote (("t" "todo" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-  ;;               ("r" "respond" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* IN-PROGRESS Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
-  ;;               ("n" "note" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-  ;;               ("j" "Journal" entry (file+datetree "~/ghq/github.com/badele/org/diary.org")
-  ;;                "* %?\n%U\n" :clock-in t :clock-resume t)
-  ;;               ("w" "org-protocol" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* TODO Review %c\n%U\n" :immediate-finish t)
-  ;;               ("m" "Meeting" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-  ;;               ("p" "Phone call" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-  ;;               ("h" "Habit" entry (file "~/ghq/github.com/badele/org/inbox.org")
-  ;;                "* IN-PROGRESS %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
 
   ;; Disable hl-line-mode in org-mode and org-agenda-mode (because hide logbook time)
   (add-hook 'org-mode-hook (lambda () (hl-line-mode -1)))
@@ -451,6 +378,10 @@ Tag|:perso:|:work:|:family:}\n%U\n")
       (global-org-modern-mode -1))
     (remove-hook 'org-mode-hook #'org-modern-mode)
     (remove-hook 'org-agenda-finalize-hook #'org-modern-agenda))
+
+  (map! :leader
+        :desc "Update all org dynamic blocks"
+        "m u" #'org-update-all-dblocks)
   )
 
 (after! org-agenda
@@ -485,7 +416,6 @@ Tag|:perso:|:work:|:family:}\n%U\n")
     '(org-agenda-done
       :foreground "#565f89"))
   )
-
 
 ;; neotex mode =================================================================
 (define-derived-mode neo-mode text-mode "Neotex"
