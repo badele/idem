@@ -195,11 +195,11 @@ check.sh                    Requirements checker
   ~DOOMDIR-YYYYmmdd-HHMMSS.bak~.
 - Re-run ~doom sync~ after changing ~doom.d/init.el~ or ~doom.d/packages.el~.
 
-* TODO [0/7]
+* TODO [2/7]
 
-- [ ] org
+- [X] org
 - [ ] plantuml support
-- [ ] calendar integration
+- [X] calendar integration
 - [ ] everywhere (edit anywhere with Emacs)
 - [ ] irc client
 - [ ] rss reader (+org)
