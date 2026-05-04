@@ -1,0 +1,213 @@
+#+TITLE: idem
+
+Welcome to my personalized Doom Emacs configuration! This configuration is
+tailored primarily for DevOps tasks but can also be utilized by developers
+working with languages like Go, Python, Rust, Nix, Scala, Terraform,
+TypeScript, and more.
+
+I've aimed to streamline the installation process by creating a bootstrap script
+and a ~flake.nix~ for Nix-based dependency management.
+
+* Features
+
+- *DevOps-Centric:* This Doom Emacs setup is optimized for DevOps workflows,
+  enhancing your efficiency in tasks related to infrastructure (Terraform,
+  Docker, Ansible), automation, and more.
+- *Developer-Friendly:* Even if you're a developer working with various
+  programming languages such as Go, Haskell, JavaScript, JSON, LaTeX, Lua, Nix,
+  Python, Rust, Scala, Shell, TypeScript, YAML, etc., this configuration has you
+  covered.
+
+* Modules
+
+- *Completion*
+  - Completion engine [[https://github.com/minad/corfu][corfu]] (+orderless)
+  - Incremental narrowing [[https://github.com/minad/vertico][vertico]]
+- *Appearance*
+  - A clean, dark colorscheme
+    [[https://github.com/doomemacs/themes][doom-tokyo-night]]
+  - A custom ANSI dashboard with
+    [[https://github.com/emacs-dashboard/emacs-dashboard][emacs-dashboard]]
+  - Status line [[https://github.com/seagle0128/doom-modeline][doom-modeline]]
+  - Tab bar [[https://github.com/ema2159/centaur-tabs][centaur-tabs]]
+  - Project drawer [[https://github.com/Alexander-Miller/treemacs][treemacs]]
+    (+lsp)
+  - Indent guides
+    [[https://github.com/jdtsmith/indent-bars][indent-bars]]
+  - VCS diff in the fringe [[https://github.com/doomemacs/doomemacs][vc-gutter]]
+    (+pretty)
+  - Color preview
+    [[https://github.com/DevelopmentCool2449/colorful-mode][colorful-mode]]
+- *Editor*
+  - Vim emulation [[https://github.com/emacs-evil/evil][evil]] (+everywhere)
+  - Format on save [[https://github.com/doomemacs/doomemacs][format]] (+onsave)
+  - Code folding, file templates, snippets
+  - Whitespace management (+guess +trim)
+- *IDE*
+  - Git porcelain [[https://github.com/magit/magit][magit]] (+forge)
+  - LSP via [[https://github.com/joaotavora/eglot][eglot]]
+  - Syntax highlighting
+    [[https://github.com/emacs-tree-sitter/elisp-tree-sitter][tree-sitter]]
+  - Syntax checker [[https://github.com/flycheck/flycheck][flycheck]]
+  - Debugger [[https://github.com/emacs-lsp/dap-mode][dap-mode]]
+  - AI [[https://github.com/copilot-emacs/copilot.el][GitHub Copilot]]
+  - Search [[https://github.com/Wilfred/deadgrep][deadgrep]],
+    [[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]
+  - Terminal [[https://github.com/akermu/emacs-libvterm][vterm]]
+- *Tools*
+  - Ansible, Docker (+lsp +tree-sitter), Terraform (+lsp)
+  - direnv, editorconfig, pass
+  - make (run make tasks from Emacs)
+- *Emacs*
+  - dired, tramp, undo, vc
+  - Clipboard support
+    [[https://github.com/spudlyo/clipetty][clipetty]]
+
+* Language support
+
+To add or remove a language, you need to modify the following files:
+
+- ~./flake.nix~
+- ~./doom.d/init.el~
+- ~./doom.d/config.el~ (for language-specific formatting/settings)
+
+Doom module reference:
+
+- [[https://github.com/doomemacs/doomemacs/blob/master/docs/modules.org][Doom Modules Index]]
+
+The below table shows the languages fully supported (LSP, highlighting, format,
+lint/diagnostic, completion, action).
+
+** Fully supported
+
+| Language   | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                       |
+|------------+-----+-----+-----+------+-----+-----+---------------------------------------------------|
+| emacs-lisp | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~emacs-lisp~ (native)                             |
+| markdown   | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(markdown +tree-sitter +grip)~, prettier, pandoc |
+| nix        | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(nix +lsp +tree-sitter)~                         |
+| python     | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(python +lsp +tree-sitter +poetry +pyright +uv)~ |
+| yaml       | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(yaml +lsp +tree-sitter)~                        |
+
+** Not tested
+
+| Language   | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                   |
+|------------+-----+-----+-----+------+-----+-----+-----------------------------------------------|
+| docker     | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~docker (+lsp +tree-sitter)~                  |
+| go         | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(go +lsp +tree-sitter)~                      |
+| graphql    | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(graphql +lsp +tree-sitter)~                 |
+| haskell    | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(haskell +lsp +tree-sitter)~                 |
+| javascript | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(javascript +lsp +tree-sitter)~              |
+| json       | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(json +lsp +tree-sitter)~                    |
+| latex      | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(latex +cdlatex +fold +lsp)~                 |
+| lua        | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(lua +lsp +tree-sitter +fennel +moonscript)~ |
+| rust       | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(rust +lsp +tree-sitter)~                    |
+| scala      | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(scala +lsp +tree-sitter)~                   |
+| shell      | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(sh +fish +lsp)~                             |
+| terraform  | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(terraform +lsp)~                            |
+
+** Partially supported
+
+| Language | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                                                       |
+|----------+-----+-----+-----+------+-----+-----+-----------------------------------------------------------------------------------|
+| ansible  | ✅  | ✅  | ❌  | ✅   | ✅  | ❌  | ~ansible~                                                                         |
+| data     | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~data~ (config/data formats)                                                      |
+| graphviz | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~graphviz~                                                                        |
+| ledger   | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~ledger~                                                                          |
+| neotex   | ❌  | ❌  | ❌  | ❌   | ❌  | ❌  | ~neo-mode~ (custom text-mode in config.el)                                        |
+| org      | ✅  | ✅  | ✅  | ❌   | ✅  | ✅  | ~(org +dragndrop +crypt +gnuplot +journal +jupyter +noter +pandoc +pretty +roam)~ |
+
+*Legend:*
+~LSP~ - Language Server Protocol
+~HL~ - Highlighting
+~FO~ - Format
+~Lint~ - Linting
+~cmp~ - Completion
+~CA~ - Code Action
+
+* Keybinding
+
+Main keybinding with ~SPC~ (leader key, Evil mode):
+
+| Key       | Category                         |
+|-----------+----------------------------------|
+| ~SPC t h~ | Toggle Eglot inlay hints         |
+| ~SPC p f~ | Find file with fd (consult-fd)   |
+| ~C-s~     | Save buffer (+ exit insert mode) |
+
+Copilot bindings (in ~prog-mode~):
+
+| Key     | Action                    |
+|---------+---------------------------|
+| ~TAB~   | Accept completion         |
+| ~C-TAB~ | Accept completion by word |
+| ~C-n~   | Next completion           |
+| ~C-p~   | Previous completion       |
+
+* Installation
+
+** Quick install
+
+1. [OPTIONAL] ~nix develop~
+2. Set your Doom pin in ~doom-version.txt~
+3. Run the bootstrap script: ~./bootstrap/doom-install.sh~
+4. Check requirements: ~./check.sh~
+5. Check Emacs configuration: ~doom doctor~
+
+** Overrides
+
+#+begin_src shell
+DOOMDIR=/path/to/doomdir EMACSDIR=/path/to/emacs.d ./bootstrap/doom-install.sh
+#+end_src
+
+Defaults:
+
+- ~DOOMDIR: $HOME/.config/doom~
+- ~EMACSDIR: $HOME/.config/emacs~
+
+** Multiple profiles
+
+#+begin_src shell
+DOOMDIR="$HOME/.config/doom-kickstart" emacs
+DOOMDIR="$HOME/.config/doom-kickstart" "$HOME/.emacs.d/bin/doom" sync
+#+end_src
+
+** Pins and lockfile
+
+- ~doom-version.txt~: Doom core ref (commit, tag, or branch).
+
+* Layout
+
+#+begin_src text
+bootstrap/doom-install.sh   Bootstrap Doom core and sync
+doom.d/                     Doom configuration directory
+  init.el                   Module declarations
+  config.el                 User configuration
+  packages.el               Extra package declarations
+doom-version.txt            Pinned Doom core ref
+flake.nix                   Nix flake for dependencies
+check.sh                    Requirements checker
+#+end_src
+
+*Notes:*
+
+- The bootstrap script links DOOMDIR to this repo's ~doom.d/~.
+- If DOOMDIR exists as a directory, it is renamed to
+  ~DOOMDIR-YYYYmmdd-HHMMSS.bak~.
+- Re-run ~doom sync~ after changing ~doom.d/init.el~ or ~doom.d/packages.el~.
+
+* TODO [0/7]
+
+- [ ] org
+- [ ] plantuml support
+- [ ] calendar integration
+- [ ] everywhere (edit anywhere with Emacs)
+- [ ] irc client
+- [ ] rss reader (+org)
+- [ ] rss reader (+org)
+
+* Credits
+
+Many configuration patterns come from the following projects, thanks to the
+contributors:
+
+- [[https://github.com/doomemacs/doomemacs][Doom Emacs]]
