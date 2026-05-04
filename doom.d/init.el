@@ -158,7 +158,7 @@
        (nix +lsp +tree-sitter)               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        ;;odin              ; C, minus its footguns
-       (org +dragndrop +crypt +gnuplot +hugo +journal +jupyter +noter +pandoc +pomodoro +present +pretty +roam)               ; organize your plain life in plain text
+       (org +dragndrop +crypt +gnuplot +hugo +journal +jupyter +noter +pandoc +pomodoro +present +roam)               ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;; TODO: plantuml          ; diagrams for confusing people more
        graphviz          ; diagrams for confusing yourself even more

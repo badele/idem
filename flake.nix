@@ -88,13 +88,7 @@
 
           # Latex
           latex_packages = with pkgs; [
-            # biber
             ghostscript
-            # pplatex
-            # pstree
-            # texlab
-            # xdotool
-            # zathura
             (texlive.combine {
               inherit (texlive)
                 scheme-medium

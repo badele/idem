@@ -20,6 +20,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq doom-theme 'doom-tokyo-night)
 
+;; disable perspective auto-restore (because I use it with emacsclient and it causes issues
+(after! persp-mode
+  (setq persp-emacsclient-init-frame-behaviour-override "main"))
+
 ;; define french locale
 ;; (set-locale-environment "fr_FR.UTF-8")
 (setq system-time-locale "fr_FR.UTF-8")
@@ -126,10 +130,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq locate-command "plocate %s %s")
 
-;; enable undo on multiple sessions
-;; (use-package! undo-fu-session
-;;   :hook ((prog-mode text-mode conf-mode) . undo-fu-session-mode))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rebinding
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -176,6 +176,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; org mode ====================================================================
+(defun my/org-refresh-all ()
+  (interactive)
+  (org-update-all-dblocks)
+  (org-babel-execute-buffer))
+
+(defun my-org-clocktable-strip-stats (ipos tables params)
+  (org-clocktable-write-default ipos tables params)
+  (save-excursion
+    (goto-char ipos)
+    (let ((end (save-excursion
+                 (re-search-forward "^#\\+END:" nil t))))
+      (while (re-search-forward "\\s-*\\(\\[[0-9]+/[0-9]+\\]\\|\\[[0-9]+%\\]\\)" end t)
+        (replace-match "")))))
+
 ;; Compute age from BIRTHDAY property and display it in agenda if today is the birthday
 (defun my/org-anniversary-from-prop ()
   (let* ((bday (org-entry-get nil "BIRTHDAY"))
@@ -192,6 +206,20 @@
       (format "%s a %d ans" name (- ty y)))))
 
 (after! org
+  (setq org-habit-graph-column 60)
+  (setq org-deadline-warning-days 14)
+  (setq org-agenda-deadline-leaders
+        '("⚠ Deadline: "
+          "⏳ In %2d days: "
+          "❌ %2d days late: "))
+
+  ;; indented subtrees in agenda
+  (setq org-agenda-prefix-format
+        '((agenda . " %i %-12:c%?-16t%s")
+          (todo   . " %i %-12:c%l %s")
+          (tags   . " %i %-12:c%l %s")
+          (search . " %i %-12:c%l %s")))
+
   (setq org-directory "~/ghq/github.com/badele/org/")
   (setq org-default-notes-file "~/ghq/github.com/badele/org/notes.org")
   (setq +org-capture-inbox-file "~/ghq/github.com/badele/org/inbox.org")
@@ -202,7 +230,7 @@
         (mapcar (lambda (file)
                   (expand-file-name file org-directory))
                 '(
-                  "contacts.org"
+                  "birthday.org"
                   "inbox.org"
                   "jobs.org"
                   "perso.org"
@@ -217,12 +245,6 @@
           )
         )
 
-  ;; Align category and time in agenda view
-  (setq org-agenda-prefix-format
-        '((agenda . " %25:c %12t ")
-          (todo   . " %25:c ")
-          (tags   . " %25:c ")
-          (search . " %25:c ")))
 
   ;; Global TODO keywords
   (setq org-todo-keywords
@@ -291,7 +313,9 @@
                        '(or (air-org-skip-subtree-if-habit)
                             (air-org-skip-subtree-if-priority ?A)
                             (org-agenda-skip-if nil '(scheduled deadline))))
-                      (org-agenda-overriding-header "Other tasks:")))))
+                      (org-agenda-overriding-header "Other tasks:")
+                      (org-agenda-sorting-strategy '(category-keep))))))
+
 
           ("j" "Job status"
            ((todo "TODO")
@@ -303,6 +327,7 @@
             (todo "CANCELLED"))
            ((org-agenda-files '("jobs.org"))
             (org-agenda-overriding-header "Job status")))
+
 
           ("i" "Inbox"
            tags "LEVEL=1"
@@ -321,24 +346,6 @@
 
           ("t" "Today Journal" entry (file+olp+datetree +org-capture-journal-file)
            "* %U %?\n%i\n%a" :prepend t)
-          ;; ("p" "Templates for projects")
-          ;; ("pt" "Project-local todo" entry
-          ;;  (file+headline +org-capture-project-todo-file "Inbox") "* TODO %?\n%i\n%a"
-          ;;  :prepend t)
-          ;; ("pn" "Project-local notes" entry
-          ;;  (file+headline +org-capture-project-notes-file "Inbox") "* %U %?\n%i\n%a"
-          ;;  :prepend t)
-          ;; ("pc" "Project-local changelog" entry
-          ;;  (file+headline +org-capture-project-changelog-file "Unreleased")
-          ;;  "* %U %?\n%i\n%a" :prepend t)
-
-          ;; ("o" "Centralized templates for projects")
-          ;; ("ot" "Project todo" entry #'+org-capture-central-project-todo-file
-          ;;  "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
-          ;; ("on" "Project notes" entry #'+org-capture-central-project-notes-file
-          ;;  "* %U %?\n %i\n %a" :heading "Notes" :prepend t)
-          ;; ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file
-          ;;  "* %U %?\n %i\n %a" :heading "Changelog" :prepend t)
 
           ("j" "Job application" entry
            (file+headline +org-capture-job-file "Candidatures")
@@ -351,18 +358,16 @@
 :DATE_AJOUT: %U
 :END:
 *** Annonces :
-*** Tâches :
-- [ ] Lire l’annonce
-- [ ] Vérifier la société
-- [ ] Vérifier réputation société (indeed, glassdoor)
-- [ ] Adapter CV
-- [ ] Postuler
-*** Questions à poser :
-*** Notes :
-    - STACK :
-    - POINTS positifs :
-    - Red flags :
-*** Echanges :
+    :PROPERTIES:
+    :ANNONCE: %^{Lien de l'annonce|https://|http://
+    :END:
+**** %\\1 - xxx
+***** Echanges :
+***** Questions à poser :
+***** Notes :
+      - stack :
+      - points positifs :
+      - red flags :
           "
            :prepend t)
           )
@@ -372,16 +377,9 @@
   (add-hook 'org-mode-hook (lambda () (hl-line-mode -1)))
   (add-hook 'org-agenda-mode-hook (lambda () (hl-line-mode -1)))
 
-  ;; disable org-modern-mode in terminal
-  (unless (display-graphic-p)
-    (when (bound-and-true-p global-org-modern-mode)
-      (global-org-modern-mode -1))
-    (remove-hook 'org-mode-hook #'org-modern-mode)
-    (remove-hook 'org-agenda-finalize-hook #'org-modern-agenda))
-
   (map! :leader
         :desc "Update all org dynamic blocks"
-        "m u" #'org-update-all-dblocks)
+        "m u" #'my/org-refresh-all)
   )
 
 (after! org-agenda
@@ -414,7 +412,12 @@
       :foreground "#f7768e" :weight bold)
 
     '(org-agenda-done
-      :foreground "#565f89"))
+      :foreground "#565f89")
+
+    '(org-tag
+      :foreground "#bb8af7" )
+
+    )
   )
 
 ;; neotex mode =================================================================
