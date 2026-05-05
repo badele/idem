@@ -109,7 +109,7 @@
           make_packages = with pkgs; [ gnumake ];
 
           markdown_packages = with pkgs; [
-            grip
+            go-grip
             markdownlint-cli
             pandoc
             proselint
