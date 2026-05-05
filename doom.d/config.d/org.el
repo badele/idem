@@ -186,7 +186,7 @@
 :END:
 *** Annonces :
     :PROPERTIES:
-    :ANNONCE: %^{Lien de l'annonce|https://|http://
+    :ANNONCE: %^{Text ou lien de l'annonce}
     :END:
 **** %\\1 - xxx
 ***** Echanges :
