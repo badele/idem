@@ -1,3 +1,5 @@
+;;; config.d/org.el -*- lexical-binding: t; -*-
+
 ;; I don't use grip-mode, because it doen't work well with go-grip,
 ;; I just use go-grip directly to preview markdown files in browser.
 (defun my/go-grip-preview ()

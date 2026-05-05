@@ -1,3 +1,8 @@
+;;; config.d/org.el -*- lexical-binding: t; -*-
+
+(require 'org)
+(require 'ol)
+
 (defun my/org-refresh-all ()
   (interactive)
   (org-update-all-dblocks)

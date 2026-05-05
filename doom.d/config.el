@@ -214,8 +214,8 @@
 
 (add-hook 'neo-mode-hook #'my/neo--setup)
 
-(load! "config.d/markdown.el")
-(load! "config.d/org.el")
+(load! "config.d/org")
+(load! "config.d/markdown")
 
 (after! apheleia
   (setf (alist-get 'prettier apheleia-formatters)
