@@ -185,10 +185,10 @@
 :DATE_AJOUT: %U
 :END:
 *** Annonces :
+**** %\\1 - xxx
     :PROPERTIES:
     :ANNONCE: %^{Text ou lien de l'annonce}
     :END:
-**** %\\1 - xxx
 ***** Echanges :
 ***** Questions à poser :
 ***** Notes :
@@ -243,6 +243,13 @@
 
     '(org-tag
       :foreground "#bb8af7" )
+
+    '(minibuffer-prompt
+      :foreground "#7dcfff" :background unspecified :weight bold)
+
+    '(region :background "#7aa2f7" :foreground "#1a1b26")
+
+    '(secondary-selection :background "#3b4261" :foreground "#c0caf5")
 
     )
   )
