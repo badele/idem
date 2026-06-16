@@ -13,7 +13,10 @@
         (font-spec :family "monospace" :size 14))))
 
 (when (display-graphic-p)
-  (set-mouse-color "white"))
+  (setq x-pointer-shape 132)
+  (set-mouse-color "white")
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Define editor UI
@@ -214,8 +217,9 @@
 
 (add-hook 'neo-mode-hook #'my/neo--setup)
 
-(load! "config.d/org")
 (load! "config.d/markdown")
+(load! "config.d/org")
+(load! "config.d/typst")
 
 (after! apheleia
   (setf (alist-get 'prettier apheleia-formatters)

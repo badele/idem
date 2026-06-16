@@ -18,6 +18,7 @@
       javascript_support = false;
       json_support = false;
       latex_support = false;
+      typst_support = true;
       ledger_support = false;
       lua_support = false;
       make_support = false;
@@ -99,6 +100,14 @@
                 pgf
                 ;
             })
+            kdePackages.okular
+          ];
+
+          # Typst
+          typst_packages = with pkgs; [
+            typst
+            tinymist
+            kdePackages.okular
           ];
 
           lua_packages = with pkgs; [
@@ -175,6 +184,7 @@
               export IDEM_JAVASCRIPT_SUPPORT=${boolToString javascript_support}
               export IDEM_JSON_SUPPORT=${boolToString json_support}
               export IDEM_LATEX_SUPPORT=${boolToString latex_support}
+              export IDEM_TYPST_SUPPORT=${boolToString typst_support}
               export IDEM_LUA_SUPPORT=${boolToString lua_support}
               export IDEM_LEDGER_SUPPORT=${boolToString ledger_support}
               export IDEM_MAKE_SUPPORT=${boolToString make_support}
@@ -222,6 +232,7 @@
               ++ optionals javascript_support javascript_packages
               ++ optionals json_support json_packages
               ++ optionals latex_support latex_packages
+              ++ optionals typst_support typst_packages
               ++ optionals ledger_support ledger_packages
               ++ optionals lua_support lua_packages
               ++ optionals make_support make_packages
