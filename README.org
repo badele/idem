@@ -80,13 +80,27 @@ lint/diagnostic, completion, action).
 
 ** Fully supported
 
-| Language   | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                       |
-|------------+-----+-----+-----+------+-----+-----+---------------------------------------------------|
-| emacs-lisp | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~emacs-lisp~ (native)                             |
-| markdown   | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(markdown +tree-sitter +grip)~, prettier, pandoc |
-| nix        | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(nix +lsp +tree-sitter)~                         |
-| python     | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(python +lsp +tree-sitter +poetry +pyright +uv)~ |
-| yaml       | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(yaml +lsp +tree-sitter)~                        |
+| Language   | LSP | HL | FO | Lint | cmp | CA | Doom module                                       |
+|------------+-----+----+----+------+-----+----+---------------------------------------------------|
+| emacs-lisp | ✅  | ✅ | ✅ | ✅   | ✅  | ✅ | ~emacs-lisp~ (native)                             |
+| markdown   | ✅  | ✅ | ✅ | ✅   | ✅  | ✅ | ~(markdown +tree-sitter +grip)~, prettier, pandoc |
+| nix        | ✅  | ✅ | ✅ | ✅   | ✅  | ✅ | ~(nix +lsp +tree-sitter)~                         |
+| python     | ✅  | ✅ | ✅ | ✅   | ✅  | ✅ | ~(python +lsp +tree-sitter +poetry +pyright +uv)~ |
+| yaml       | ✅  | ✅ | ✅ | ✅   | ✅  | ✅ | ~(yaml +lsp +tree-sitter)~                        |
+
+
+** Partially supported
+
+| Language | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                                                       |
+|----------+-----+-----+-----+------+-----+-----+-----------------------------------------------------------------------------------|
+| ansible  | ✅  | ✅  | ❌  | ✅   | ✅  | ❌  | ~ansible~                                                                         |
+| data     | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~data~ (config/data formats)                                                      |
+| graphviz | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~graphviz~                                                                        |
+| ledger   | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~ledger~                                                                          |
+| neotex   | ❌  | ❌  | ❌  | ❌   | ❌  | ❌  | ~neo-mode~ (custom text-mode in config.el)                                        |
+| org      | ✅  | ✅  | ✅  | ❌   | ✅  | ✅  | ~(org +dragndrop +crypt +gnuplot +journal +jupyter +noter +pandoc +pretty +roam)~ |
+| typst      | ✅  | ✅ | ❌ | ✅   | ✅  | ✅ | ~package! typst-ts-mode~                        |
+
 
 ** Not tested
 
@@ -105,24 +119,13 @@ lint/diagnostic, completion, action).
 | shell      | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(sh +fish +lsp)~                             |
 | terraform  | ✅  | ✅  | ✅  | ✅   | ✅  | ✅  | ~(terraform +lsp)~                            |
 
-** Partially supported
-
-| Language | LSP | HL  | FO  | Lint | cmp | CA  | Doom module                                                                       |
-|----------+-----+-----+-----+------+-----+-----+-----------------------------------------------------------------------------------|
-| ansible  | ✅  | ✅  | ❌  | ✅   | ✅  | ❌  | ~ansible~                                                                         |
-| data     | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~data~ (config/data formats)                                                      |
-| graphviz | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~graphviz~                                                                        |
-| ledger   | ❌  | ✅  | ❌  | ❌   | ❌  | ❌  | ~ledger~                                                                          |
-| neotex   | ❌  | ❌  | ❌  | ❌   | ❌  | ❌  | ~neo-mode~ (custom text-mode in config.el)                                        |
-| org      | ✅  | ✅  | ✅  | ❌   | ✅  | ✅  | ~(org +dragndrop +crypt +gnuplot +journal +jupyter +noter +pandoc +pretty +roam)~ |
-
 *Legend:*
 ~LSP~ - Language Server Protocol
 ~HL~ - Highlighting
 ~FO~ - Format
 ~Lint~ - Linting
 ~cmp~ - Completion
-~CA~ - Code Action
+~CA~ - Code Action (SPC c a)
 
 * Keybinding
 

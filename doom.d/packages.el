@@ -61,6 +61,17 @@
 (package! colorful-mode :pin "257cbb1")
 (package! copilot :pin "ab5c58b")
 (package! lsp-treemacs :pin "49df729")
+(package! just-mode :pin "b6173c")
+
+;; Typst
+(package! typst-ts-mode
+  :recipe (:type git
+           :host codeberg
+           :repo "meow_king/typst-ts-mode"
+           :branch "main")
+  :pin "278562d"
+  )
+;; (package! typst-preview)
 
 ;; The latest version is bugged
 (package! emacs-dashboard :pin "9cfcb08")

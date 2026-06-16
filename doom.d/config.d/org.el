@@ -185,7 +185,7 @@
 :DATE_AJOUT: %U
 :END:
 *** Annonces :
-**** %\\1 - xxx
+**** %^{Poste|DevOps|SRE|Platform Engineer}
     :PROPERTIES:
     :ANNONCE: %^{Text ou lien de l'annonce}
     :END:
