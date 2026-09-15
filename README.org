@@ -155,7 +155,7 @@ Copilot bindings (in ~prog-mode~):
 2. Set your Doom pin in ~doom-version.txt~
 3. Run the bootstrap script: ~./bootstrap/doom-install.sh~
 4. Check requirements: ~./check.sh~
-5. Check Emacs configuration: ~doom doctor~
+5. Check Emacs configuration: ~doom doctor~ or ~M-x async-shell-command RET doom doctor RET~
 
 ** Overrides
 
