@@ -3,7 +3,7 @@ GREEN=$(tput setaf 2)
 RED=$(tput setaf 1)
 NC="$(tput sgr0)"
 
-width=28
+width=30
 errors=0
 
 header() {
@@ -67,6 +67,10 @@ if [ "$IDEM_JAVASCRIPT_SUPPORT" == "true" ]; then
     header "Javascript support"
     checkTools "node"
     checkTools "npm"
+    checkTools "tsc" "typescript"
+    checkTools "typescript-language-server"
+    checkTools "eslint"
+    checkTools "vscode-eslint-language-server"
 fi
 
 if [ "$IDEM_JSON_SUPPORT" == "true" ]; then

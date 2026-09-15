@@ -15,7 +15,7 @@
       copilot_support = true;
       dockerfile_support = false;
       go_support = false;
-      javascript_support = false;
+      javascript_support = true;
       json_support = false;
       latex_support = false;
       typst_support = true;
@@ -76,6 +76,10 @@
 
           javascript_packages = with pkgs; [
             nodejs
+            typescript
+            typescript-language-server
+            eslint
+            vscode-langservers-extracted # provides vscode-eslint-language-server
           ];
 
           json_packages = with pkgs; [

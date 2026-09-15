@@ -220,6 +220,7 @@
 (load! "config.d/markdown")
 (load! "config.d/org")
 (load! "config.d/typst")
+(load! "config.d/typescript")
 
 (after! apheleia
   (setf (alist-get 'prettier apheleia-formatters)
