@@ -53,3 +53,5 @@
 
 (after! grip-mode
   (setq grip-command 'go-grip))
+
+(add-to-list 'auto-mode-alist '("\\.qmd\\'" . markdown-mode))
