@@ -63,13 +63,13 @@
 (package! lsp-treemacs :pin "49df729")
 (package! just-mode :pin "b6173c")
 
-;; Typst
+;; Typst - using develop branch for emacs 31.1 compatibility (define-compilation-mode removed)
 (package! typst-ts-mode
   :recipe (:type git
            :host codeberg
            :repo "meow_king/typst-ts-mode"
-           :branch "main")
-  :pin "278562d"
+           :branch "develop")
+  :pin "5fc2e73"
   )
 ;; (package! typst-preview)
 

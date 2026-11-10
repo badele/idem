@@ -232,7 +232,13 @@
           "--print-width" "80"
           "--stdin-filepath" filepath))
   (setf (alist-get 'markdown-mode apheleia-mode-alist) 'markdown-prettier)
-  (setf (alist-get 'gfm-mode apheleia-mode-alist) 'markdown-prettier))
+  (setf (alist-get 'gfm-mode apheleia-mode-alist) 'markdown-prettier)
+  (setf (alist-get 'qmd-prettier apheleia-formatters)
+        '("prettier"
+          "--prose-wrap" "always"
+          "--print-width" "80"
+          "--parser" "markdown"))
+  (setf (alist-get 'quarto-mode apheleia-mode-alist) 'qmd-prettier))
 
 ;; Python ======================================================================
 (setq-hook! 'python-ts-mode-hook fill-column 88)

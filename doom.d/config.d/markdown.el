@@ -54,4 +54,6 @@
 (after! grip-mode
   (setq grip-command 'go-grip))
 
-(add-to-list 'auto-mode-alist '("\\.qmd\\'" . markdown-mode))
+(define-derived-mode quarto-mode markdown-mode "Quarto"
+  "Major mode for Quarto (.qmd) files, derived from markdown-mode.")
+(add-to-list 'auto-mode-alist '("\\.qmd\\'" . quarto-mode))
